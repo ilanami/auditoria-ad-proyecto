@@ -90,4 +90,4 @@ El sistema ha demostrado su efectividad en la detección de:
 
 ---
 
-*Desarrollado con ❤️ para la comunidad de ciberseguridad*
+*Desarrollado con ❤️ para la finalizacion del Curso de Ciberguridad - Tokio School*
