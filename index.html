@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto Final - Auditoría Integral de Seguridad Active Directory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #0ea5e9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(59, 130, 246, 0.2));
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--secondary-color);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        /* Section */
+        .section {
+            margin: 3rem 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Tool Links */
+        .tool-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .tool-link-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .tool-link-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .tool-link-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-link-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-link:hover {
+            background: var(--primary-color);
+            transform: translateX(3px);
+        }
+
+        .btn-secondary {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-color);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success-color);
+        }
+
+        /* Documento Académico */
+        .documento-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .documento-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .documento-title {
+            font-size: 1.8rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .documento-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .documento-stat {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .documento-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+            display: block;
+        }
+
+        .documento-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.3rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2.5rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.3);
+            background: var(--card-bg);
+            border-radius: 15px;
+        }
+
+        .footer h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .footer p {
+            color: var(--text-secondary);
+            margin: 0.4rem 0;
+        }
+
+        .footer-highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .cards-grid,
+            .tool-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Proyecto Final - Tokio School - Ciberseguridad</span>
+            </div>
+            <h1>Auditoría Integral de Seguridad Active Directory</h1>
+            <p class="header-subtitle">Automatización con N8N + Herramientas Personalizadas + Motor de Análisis Inteligente</p>
+            <p class="header-description">
+                Sistema completo de auditoría automatizada para Active Directory que integra múltiples herramientas 
+                de análisis mediante workflows de N8N, generando reportes consolidados con motor de análisis 
+                inteligente y recomendaciones de remediación basadas en frameworks NIST, CIS y MITRE ATT&CK.
+            </p>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">6</span>
+                <span class="stat-label">Herramientas Integradas</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">94+</span>
+                <span class="stat-label">Vulnerabilidades Detectadas</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">2</span>
+                <span class="stat-label">Herramientas Personalizadas</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">1</span>
+                <span class="stat-label">Workflow N8N Completo</span>
+            </div>
+        </div>
+
+        <!-- Documento Académico -->
+        <section class="section">
+            <div class="documento-section">
+                <div class="documento-header">
+                    <h2 class="documento-title">
+                        <i class="fas fa-file-alt"></i> Documento Técnico Académico Completo
+                    </h2>
+                    <p class="section-subtitle">
+                        Documentación exhaustiva de 249 páginas que detalla todas las fases del proyecto, 
+                        metodologías aplicadas, hallazgos, evidencias y recomendaciones de remediación.
+                    </p>
+                </div>
+
+                <div class="documento-stats">
+                    <div class="documento-stat">
+                        <span class="documento-stat-number">249</span>
+                        <span class="documento-stat-label">Páginas de Documentación</span>
+                    </div>
+                    <div class="documento-stat">
+                        <span class="documento-stat-number">27</span>
+                        <span class="documento-stat-label">Vulnerabilidades Únicas</span>
+                    </div>
+                    <div class="documento-stat">
+                        <span class="documento-stat-number">4</span>
+                        <span class="documento-stat-label">Frameworks Integrados</span>
+                    </div>
+                    <div class="documento-stat">
+                        <span class="documento-stat-number">96.3%</span>
+                        <span class="documento-stat-label">Reducción de Superficie de Ataque</span>
+                    </div>
+                </div>
+
+                <div class="alert-box alert-success">
+                    <h4 style="color: var(--success-color); margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i> Contenido del Documento Académico
+                    </h4>
+                    <div style="color: var(--text-secondary); line-height: 1.8;">
+                        <p style="margin-bottom: 1rem;">
+                            <strong>Metodología Híbrida:</strong> Integración de PTES + NIST CSF + CIS Controls v8 + MITRE ATT&CK 
+                            con automatización mediante N8N y herramientas personalizadas desarrolladas en Python.
+                        </p>
+                        <p style="margin-bottom: 1rem;">
+                            <strong>Transformación Cuantificable:</strong> Reducción del 96.3% de la superficie de ataque, 
+                            eliminación del 100% de credenciales sensibles explotables, y extensión del tiempo de compromiso 
+                            de minutos a más de 30 días.
+                        </p>
+                        <p style="margin-bottom: 1rem;">
+                            <strong>Competencias Demostradas:</strong> Identificación, análisis, explotación, remediación y 
+                            documentación de 27 vulnerabilidades únicas y relevantes con más de 270 comandos operativos.
+                        </p>
+                        <p>
+                            <strong>Validación Académica:</strong> Dominio de metodologías híbridas, priorización operacional, 
+                            remediación completa y reproducible, y transformación técnica del entorno de compromiso garantizado 
+                            a postura defensiva robusta.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="tool-links">
+                    <div class="tool-link-card">
+                        <div class="tool-link-title">
+                            <i class="fas fa-book"></i>
+                            Documento Técnico Completo
+                        </div>
+                        <p class="tool-link-description">
+                            Documentación exhaustiva de 249 páginas que detalla todas las fases del proyecto, 
+                            metodologías aplicadas, hallazgos, evidencias y recomendaciones de remediación.
+                        </p>
+                        <a href="PROYECTOFINAL.html" class="btn-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            Ver Documento Completo
+                        </a>
+                    </div>
+
+                    <div class="tool-link-card">
+                        <div class="tool-link-title">
+                            <i class="fas fa-presentation"></i>
+                            Presentación del Proyecto
+                        </div>
+                        <p class="tool-link-description">
+                            Presentación ejecutiva del proyecto con resumen de objetivos, metodología, 
+                            herramientas desarrolladas, resultados obtenidos y conclusiones principales.
+                        </p>
+                        <a href="Auditoría_Integral_de_Seguridad_AD.pptx" class="btn-link" target="_blank">
+                            <i class="fas fa-download"></i>
+                            Descargar Presentación
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Objetivo del Proyecto -->
+        <section class="section">
+            <h2 class="section-title">Objetivo del Proyecto</h2>
+            <p class="section-subtitle">
+                Desarrollar un sistema automatizado de auditoría de seguridad para Active Directory que integre 
+                herramientas estándar (Nmap, Enum4Linux, SMB Analysis, LDAP Analysis) con herramientas personalizadas 
+                (AD-Analyzer Pro, CryptoAD-Auditor) mediante workflows de N8N, generando reportes consolidados 
+                con análisis inteligente y recomendaciones de remediación.
+            </p>
+
+            <div class="alert-box alert-success">
+                <h4 style="color: var(--success-color); margin-bottom: 1rem;">
+                    <i class="fas fa-check-circle"></i> Estado del Proyecto
+                </h4>
+                <p style="color: var(--text-secondary); line-height: 1.7;">
+                    <strong>✅ Completado:</strong> Sistema funcional con automatización completa mediante N8N, 
+                    motor de análisis inteligente, generador de reportes HTML dinámicos y herramientas 
+                    personalizadas desarrolladas en Python. Todas las funcionalidades han sido probadas 
+                    y validadas en entornos de laboratorio.
+                </p>
+            </div>
+        </section>
+
+        <!-- Arquitectura del Sistema -->
+        <section class="section">
+            <h2 class="section-title">Arquitectura del Sistema</h2>
+            <p class="section-subtitle">
+                Sistema modular que integra herramientas estándar y personalizadas mediante automatización N8N
+            </p>
+
+            <div class="cards-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3 class="feature-title">Workflow N8N - Orquestador Principal</h3>
+                    <p class="feature-description">
+                        <strong>Motor de Orquestación:</strong> Workflow completo que ejecuta secuencialmente 
+                        todas las herramientas de análisis, procesa resultados mediante motor de análisis 
+                        inteligente y genera reportes HTML consolidados automáticamente.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="feature-title">Advanced Server API</h3>
+                    <p class="feature-description">
+                        <strong>Servidor HTTP Python:</strong> API REST que expone endpoints para cada herramienta, 
+                        gestiona la ejecución de scripts personalizados y proporciona interfaz para el workflow N8N.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Motor de Análisis Inteligente</h3>
+                    <p class="feature-description">
+                        <strong>Procesamiento Avanzado:</strong> Componente que correlaciona resultados de múltiples 
+                        fuentes, aplica deduplicación inteligente, calcula puntuaciones de riesgo y genera 
+                        resúmenes ejecutivos automatizados.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Generador de Reportes HTML</h3>
+                    <p class="feature-description">
+                        <strong>Reportes Dinámicos:</strong> Sistema que produce reportes HTML profesionales con 
+                        visualizaciones interactivas, separación por herramientas, recomendaciones de remediación 
+                        y mapeo a frameworks NIST, CIS y MITRE ATT&CK.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Herramientas Desarrolladas -->
+        <section class="section">
+            <h2 class="section-title">Herramientas Personalizadas Desarrolladas</h2>
+            <p class="section-subtitle">
+                Aplicaciones Python especializadas para análisis avanzado de Active Directory
+            </p>
+
+            <div class="tool-links">
+                <!-- AD-Analyzer Pro -->
+                <div class="tool-link-card">
+                    <div class="tool-link-title">
+                        <i class="fas fa-search-plus"></i>
+                        AD-Analyzer Pro v1.0
+                    </div>
+                    <p class="tool-link-description">
+                        <strong>Herramienta Principal:</strong> Análisis profesional de Active Directory con 42 reglas 
+                        especializadas de seguridad, consultas LDAP avanzadas, sistema de puntuación de riesgo 
+                        contextualizado y mapeo automático a MITRE ATT&CK, NIST y CIS Controls.
+                    </p>
+                    <div style="margin: 1rem 0; padding: 0.8rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                        <strong style="color: var(--secondary-color);">Características:</strong>
+                        <ul style="margin: 0.5rem 0 0 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            <li>42 reglas de análisis de seguridad</li>
+                            <li>Detección de vulnerabilidades críticas</li>
+                            <li>Análisis de cuentas privilegiadas</li>
+                            <li>Evaluación de configuraciones Kerberos</li>
+                            <li>Mapeo automático a frameworks</li>
+                        </ul>
+                    </div>
+                    <a href="ad_analyzer_report_20251013_181606.html" class="btn-link" target="_blank">
+                        <i class="fas fa-folder-open"></i>
+                        Ver Reporte AD-Analyzer
+                    </a>
+                </div>
+
+                <!-- CryptoAD-Auditor -->
+                <div class="tool-link-card">
+                    <div class="tool-link-title">
+                        <i class="fas fa-lock"></i>
+                        CryptoAD-Auditor v1.0
+                    </div>
+                    <p class="tool-link-description">
+                        <strong>Análisis Criptográfico:</strong> Script especializado en auditoría criptográfica 
+                        para entornos AD, evaluando configuraciones Kerberos, certificados PKI/ADCS, 
+                        protocolos de autenticación y cumplimiento con estándares NIST y CIS.
+                    </p>
+                    <div style="margin: 1rem 0; padding: 0.8rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                        <strong style="color: var(--success-color);">Funcionalidades:</strong>
+                        <ul style="margin: 0.5rem 0 0 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            <li>Análisis de configuraciones Kerberos</li>
+                            <li>Evaluación de certificados PKI</li>
+                            <li>Auditoría de protocolos de autenticación</li>
+                            <li>Cumplimiento NIST/CIS</li>
+                            <li>30 configuraciones analizadas</li>
+                        </ul>
+                    </div>
+                    <a href="CryptoAD_Auditoria_20251013_181608.html" class="btn-link" target="_blank">
+                        <i class="fas fa-folder-open"></i>
+                        Ver Reporte CryptoAD
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Herramientas Estándar Integradas -->
+        <section class="section">
+            <h2 class="section-title">Herramientas Estándar Integradas</h2>
+            <p class="section-subtitle">
+                Herramientas de análisis de red y enumeración integradas en el workflow
+            </p>
+
+            <div class="cards-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="feature-title">Nmap - Escaneo de Puertos</h3>
+                    <p class="feature-description">
+                        <strong>Reconocimiento de Red:</strong> Escaneo automático de puertos y servicios 
+                        para identificar servicios expuestos, versiones y configuraciones de red.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Enum4Linux - Enumeración</h3>
+                    <p class="feature-description">
+                        <strong>Enumeración de Usuarios:</strong> Identificación automática de usuarios, 
+                        grupos y recursos compartidos en el dominio Active Directory.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="feature-title">SMB Analysis - Recursos</h3>
+                    <p class="feature-description">
+                        <strong>Análisis SMB:</strong> Evaluación de recursos compartidos SMB, 
+                        permisos y configuraciones de seguridad en recursos de red.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="feature-title">LDAP Analysis - Directorio</h3>
+                    <p class="feature-description">
+                        <strong>Análisis LDAP:</strong> Evaluación de configuraciones LDAP, 
+                        políticas de seguridad y configuraciones del directorio activo.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow N8N -->
+        <section class="section">
+            <h2 class="section-title">Workflow N8N - Automatización Completa</h2>
+            <p class="section-subtitle">
+                Sistema de automatización que integra todas las herramientas y genera reportes consolidados
+            </p>
+
+            <div class="alert-box alert-info">
+                <h4 style="color: var(--secondary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-cogs"></i> Proceso de Automatización
+                </h4>
+                <div style="color: var(--text-secondary); line-height: 1.8;">
+                    <p style="margin-bottom: 1rem;">
+                        <strong>1. Ejecución Secuencial:</strong> El workflow ejecuta automáticamente Nmap, 
+                        Enum4Linux, SMB Analysis, LDAP Analysis, AD-Analyzer Pro y CryptoAD-Auditor.
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        <strong>2. Motor de Análisis Inteligente:</strong> Procesa todos los resultados, 
+                        aplica deduplicación inteligente y correlaciona hallazgos entre herramientas.
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        <strong>3. Generación de Reportes:</strong> Crea reportes HTML consolidados con 
+                        visualizaciones interactivas, separación por herramientas y recomendaciones.
+                    </p>
+                    <p>
+                        <strong>4. Almacenamiento:</strong> Guarda reportes en formato HTML con timestamp 
+                        y metadatos de la auditoría para trazabilidad completa.
+                    </p>
+                </div>
+            </div>
+
+            <div class="tool-links">
+                <div class="tool-link-card">
+                    <div class="tool-link-title">
+                        <i class="fas fa-chart-line"></i>
+                        Reportes Generados
+                    </div>
+                    <p class="tool-link-description">
+                        Reportes HTML consolidados generados automáticamente por el sistema, 
+                        incluyendo análisis por herramienta y recomendaciones de remediación.
+                    </p>
+                    <a href="auditoria_integral_profesional_2025-10-13T16-36-47.html" class="btn-link" target="_blank">
+                        <i class="fas fa-folder-open"></i>
+                        Ver Reporte Consolidado
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Metodología -->
+        <section class="section">
+            <h2 class="section-title">Metodología Implementada</h2>
+            <p class="section-subtitle">
+                Integración de marcos metodológicos reconocidos internacionalmente para auditoría integral
+            </p>
+
+            <div class="cards-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="feature-title">PTES Framework</h3>
+                    <p class="feature-description">
+                        <strong>Penetration Testing Execution Standard</strong> - 
+                        Estructura metodológica principal que garantiza ejecución ordenada 
+                        y reproducible del pentesting desde reconocimiento hasta reporte final.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">NIST Cybersecurity Framework</h3>
+                    <p class="feature-description">
+                        Marco integral de gestión del riesgo cibernético con enfoque en 
+                        las cinco funciones esenciales: Identificar, Proteger, Detectar, 
+                        Responder y Recuperar.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="feature-title">CIS Controls v8</h3>
+                    <p class="feature-description">
+                        Controles de seguridad priorizados y basados en evidencia para 
+                        defensa efectiva. Proporciona guía práctica para recomendaciones 
+                        de endurecimiento y mitigación.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <h3 class="feature-title">MITRE ATT&CK</h3>
+                    <p class="feature-description">
+                        Marco de conocimiento sobre tácticas, técnicas y procedimientos 
+                        de adversarios reales. Facilita mapeo completo de técnicas 
+                        identificadas durante el análisis.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Principales Hallazgos -->
+        <section class="section">
+            <h2 class="section-title">Principales Hallazgos del Sistema</h2>
+            <p class="section-subtitle">
+                Vulnerabilidades críticas identificadas por el sistema automatizado en el entorno de laboratorio
+            </p>
+
+            <div class="cards-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="feature-title">Vulnerabilidades Críticas</h3>
+                    <p class="feature-description">
+                        <strong>14 vulnerabilidades críticas</strong> identificadas en Active Directory, 
+                        incluyendo cuentas administrativas excesivas, delegaciones peligrosas, 
+                        vulnerabilidades Kerberoasting y Golden Ticket.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 class="feature-title">Configuraciones Criptográficas</h3>
+                    <p class="feature-description">
+                        <strong>30 configuraciones criptográficas</strong> analizadas, identificando 
+                        protocolos inseguros, configuraciones Kerberos débiles y certificados 
+                        con configuraciones inadecuadas.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-eye-slash"></i>
+                    </div>
+                    <h3 class="feature-title">Problemas de Red</h3>
+                    <p class="feature-description">
+                        <strong>13 puertos abiertos</strong> identificados, recursos SMB expuestos, 
+                        enumeración de usuarios y grupos, y configuraciones LDAP inseguras 
+                        detectadas por el sistema.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Nota sobre Estado del Proyecto -->
+        <div class="alert-box alert-success">
+            <h4 style="color: var(--success-color); margin-bottom: 1rem;">
+                <i class="fas fa-check-circle"></i> Estado del Proyecto - Completado
+            </h4>
+            <p style="color: var(--text-secondary); line-height: 1.7;">
+                <strong>✅ Sistema Funcional:</strong> Todas las herramientas han sido desarrolladas, 
+                probadas y validadas. El workflow N8N está completamente funcional y genera reportes 
+                consolidados automáticamente. El motor de análisis inteligente procesa correctamente 
+                todos los datos y aplica deduplicación. El generador de reportes HTML produce 
+                documentación profesional con visualizaciones interactivas.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <h3><i class="fas fa-user-graduate"></i> Proyecto Final de Ciberseguridad</h3>
+            <p class="footer-highlight">Ilana Aminoff Ali</p>
+            <p>Tokio School - Programa de Ciberseguridad</p>
+            <p style="margin-top: 1rem;">
+                <i class="fas fa-calendar-alt"></i> 2025 | 
+                <i class="fas fa-shield-alt"></i> Auditoría Integral Active Directory | 
+                <i class="fas fa-code"></i> Automatización N8N + Herramientas Personalizadas
+            </p>
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                <p style="font-size: 0.9rem; line-height: 1.6;">
+                    <strong>Sistema Completo:</strong> 6 herramientas integradas + Workflow N8N + Motor de Análisis Inteligente<br>
+                    <strong>Herramientas Desarrolladas:</strong> AD-Analyzer Pro + CryptoAD-Auditor + Servidor API Python<br>
+                    <strong>Estado:</strong> ✅ Completado y Funcional - Listo para uso en entornos de laboratorio
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

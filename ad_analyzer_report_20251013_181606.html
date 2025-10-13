@@ -1,0 +1,1422 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD-Analyzer Pro v1.0 - Reporte de Seguridad Corporativo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Header Corporativo */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .audit-date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .audit-date i {
+            margin-right: 10px;
+            color: #a8d0f0;
+        }
+        
+        /* Risk Score Section */
+        .risk-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #1e3c72;
+        }
+        
+        .risk-score {
+            display: inline-block;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .risk-score:hover {
+            transform: translateY(-5px);
+        }
+        
+        .risk-CRITICAL { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+        .risk-HIGH { background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; }
+        .risk-MEDIUM { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #333; }
+        .risk-LOW { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; }
+        .risk-VERY_LOW { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; }
+        
+        .risk-score h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .risk-score h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        
+        .risk-score h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        /* Summary Grid */
+        .summary-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-bottom: 3px solid #1e3c72;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h4 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .summary-card .count {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .summary-card .label {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        
+        /* System Info Section */
+        .system-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-bottom: 3px solid #1e3c72;
+        }
+        
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .system-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .system-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .system-card p {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        /* Rule Categories */
+        .rule-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .category-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-card strong {
+            font-size: 1.3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .category-card span {
+            display: block;
+            margin: 5px 0;
+        }
+        
+        .category-card .count {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        
+        /* Findings Section */
+        .findings-section {
+            padding: 40px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+        }
+        
+        .findings-section h3 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+        
+        .finding {
+            background: white;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #ddd;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .finding:hover {
+            transform: translateX(5px);
+        }
+        
+        .finding-critical {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+            color: white;
+        }
+        
+        .finding-high {
+            border-left-color: #fd7e14;
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+            color: white;
+        }
+        
+        .finding-medium {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+            color: white;
+        }
+        
+        .finding-low {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);
+            color: white;
+        }
+        
+        .finding-title {
+            font-weight: 700;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .finding-description {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .finding-remediation {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-style: italic;
+            border-left: 3px solid white;
+            color: white;
+        }
+        
+        .finding-technical {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 0.9em;
+            border-left: 4px solid #a8d0f0;
+        }
+        
+        .finding-technical strong {
+            color: #a8d0f0;
+            margin-right: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container { margin: 10px; }
+            .header h1 { font-size: 2.5em; }
+            .header h2 { font-size: 1.5em; }
+            .summary-grid, .system-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🛡️ AD-Analyzer Pro v1.0</h1>
+            <h2>Análisis de Seguridad Active Directory</h2>
+            <h3>Reporte Corporativo de Auditoría de Seguridad</h3>
+            <div class="audit-date">
+                <i class="fas fa-calendar-alt"></i>13 de October de 2025 a las 18:16 UTC
+            </div>
+        </div>
+        
+        <!-- Risk Score Section -->
+        <div class="risk-section">
+            <div class="risk-score risk-CRITICAL">
+                <h2><i class="fas fa-shield-alt"></i> PUNTUACIÓN DE RIESGO GLOBAL</h2>
+                <h1>3028</h1>
+                <h3>Nivel de Riesgo: CRITICAL</h3>
+                <p style="font-size: 1.2em; margin-top: 15px;">
+                    <i class="fas fa-chart-line"></i> Puntuación de Compliance: <strong>0%</strong>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h3 style="color: #1e3c72; font-size: 2em; margin-bottom: 30px; text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
+                <i class="fas fa-chart-pie"></i> RESUMEN EJECUTIVO
+            </h3>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4><i class="fas fa-bug"></i> Total Hallazgos</h4>
+                    <div class="count">42</div>
+                    <div class="label">Vulnerabilidades</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Críticos</h4>
+                    <div class="count" style="color: #dc3545;">10</div>
+                    <div class="label">Alta Prioridad</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-exclamation-circle"></i> Altos</h4>
+                    <div class="count" style="color: #fd7e14;">17</div>
+                    <div class="label">Media Prioridad</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-info-circle"></i> Medios</h4>
+                    <div class="count" style="color: #ffc107;">12</div>
+                    <div class="label">Baja Prioridad</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Information -->
+        <div class="system-info">
+            <h3 style="color: #1e3c72; font-size: 2em; margin-bottom: 30px; text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
+                <i class="fas fa-info-circle"></i> INFORMACIÓN DEL SISTEMA AUDITADO
+            </h3>
+            <div class="system-grid">
+                
+            <div class="info-card">
+                <h4><i class="fas fa-server"></i> Dominio Auditado</h4>
+                <p>domain.local</p>
+            </div>
+            <div class="info-card">
+                <h4><i class="fas fa-network-wired"></i> Controlador</h4>
+                <p>192.168.37.10</p>
+            </div>
+            <div class="info-card">
+                <h4><i class="fas fa-desktop"></i> Sistema Operativo</h4>
+                <p>Windows Server 2019 Standard Evaluation 10.0 (17763)</p>
+            </div>
+        
+            </div>
+        </div>
+        
+        <!-- Rule Categories -->
+        <div class="summary-section" style="background: linear-gradient(135deg, #1e3c72 0%, #2c5282 100%);">
+            <h3 style="text-align: center; color: white; margin-bottom: 30px; font-size: 2em;">
+                <i class="fas fa-search"></i> DISTRIBUCIÓN DE REGLAS DE SEGURIDAD
+            </h3>
+            <div class="rule-categories">
+                <div class="category-card">
+                    <strong style="color: white;">P-Rules</strong><br>
+                    <span style="color: white;">Privileged Accounts</span><br>
+                    <span class="count" style="color: #dc3545">13</span>
+                </div>
+                <div class="category-card">
+                    <strong style="color: white;">A-Rules</strong><br>
+                    <span style="color: white;">Anomalies</span><br>
+                    <span class="count" style="color: #fd7e14">26</span>
+                </div>
+                <div class="category-card">
+                    <strong style="color: white;">S-Rules</strong><br>
+                    <span style="color: white;">Stale Objects</span><br>
+                    <span class="count" style="color: #ffc107">2</span>
+                </div>
+                <div class="category-card">
+                    <strong style="color: white;">T-Rules</strong><br>
+                    <span style="color: white;">Trusts</span><br>
+                    <span class="count" style="color: #28a745">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Findings Section -->
+        <div class="findings-section">
+            <h3><i class="fas fa-bug"></i> HALLAZGOS DETALLADOS</h3>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-AdminNum] Número excesivo de cuentas administrativas (16)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 16 cuentas con adminCount=1 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2020-1472 | CVSS: 8.8 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2020-1472 | CVSS: 8.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Superficie de ataque ampliada por privilegios excesivos
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Aplicar principio de menor privilegio y revisar membresías administrativas
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287, CVE-2020-1472
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1078.003
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-DnsAdmins] Membresía en grupo DnsAdmins (1)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 1 cuentas en el grupo DnsAdmins | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.2 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible escalación de privilegios a través de DNS (DNSAdmin attack)
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar membresía en DnsAdmins y aplicar principio de menor privilegio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287, CVE-2019-1040
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-PrivilegedGroupMembership] Membresía en grupos privilegiados (4 grupos)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se detectaron 4 grupos con membresía: Admins. del dominio, Administradores de empresas, Administradores de esquema | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 8.5 | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 8.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible escalación de privilegios y acceso no autorizado
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y limitar membresía en grupos privilegiados
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1078.003
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-Kerberoasting] Cuentas vulnerables a Kerberoasting (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: SPNs de alto privilegio: 20 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.8 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible extracción de hashes de cuentas de servicio y escalación de privilegios
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Implementar contraseñas robustas para cuentas de servicio y monitorear SPNs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287, CVE-2019-1040
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1558.003, T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-GoldenTicket] Vulnerabilidades Golden Ticket (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Contraseña krbtgt nunca establecida | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 9.2 | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 9.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible creación de Golden Tickets y compromiso total del dominio
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Cambiar contraseña krbtgt y monitorear uso de cuentas krbtgt
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2020-1472
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 9.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1558.001, T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [A-PreAuthNotReq] Cuentas vulnerables a AS-REP Roasting (5)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 5 cuentas sin preautenticación Kerberos | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.5 | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Extracción de hashes sin credenciales válidas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Habilitar 'Kerberos preauth required' para todas las cuentas
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287, CVE-2019-1040
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1558.001, T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [A-FunctionalLevel] Functional Level obsoleto: Windows Server 2000
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> El dominio usa Functional Level 0 (Windows Server 2000) | CVE: CVE-2021-42278 | CVSS: 6.5 | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Falta de características de seguridad modernas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Actualizar Functional Level a versión soportada
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [A-PasswordPolicy] Políticas de contraseñas débiles (3 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Longitud mínima insuficiente: 4; Complejidad de contraseñas deshabilitada; Bloqueo de cuentas deshabilitado | CVE: CVE-2021-42278 | CVSS: 6.8 | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Facilita ataques de fuerza bruta y compromiso de cuentas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Implementar políticas de contraseñas robustas según NIST/CIS
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [A-NTLMRelay] Vulnerabilidades NTLM Relay (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Configuraciones NTLM inseguras: 2 | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 7.2 | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 7.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible relay de autenticación NTLM y escalación de privilegios
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Bloquear NTLMv1 y configurar NTLM relay protection
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-critical fade-in">
+                    <div class="finding-title">
+                        [P-DangerousGroupMembership] Membresía en grupos peligrosos (4 grupos, 6 cuentas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se detectaron 4 grupos con membresía peligrosa: Admins. del dominio (2), Administradores de empresas (1), Administradores de esquema (1), DnsAdmins (2) | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 8.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Privilegios elevados via membresía en 4 grupos peligrosos
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y limitar membresía en todos los grupos privilegiados
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1078.003
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-AdminLogin] Uso reciente de cuenta Administrator incorporada
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> La cuenta Administrator incorporada ha sido utilizada recientemente | CVE: CVE-2021-42278 | CVSS: 7.5 | CVE: CVE-2021-42278 | CVSS: 7.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Cuenta con privilegios máximos sin limitaciones de seguridad
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Crear cuentas administrativas nominativas y deshabilitar Administrator
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-DelegationGPOData] Posibles delegaciones peligrosas en GPOs
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 2 GPOs con posibles delegaciones | CVE: CVE-2021-42278 | CVSS: 7.8 | CVE: CVE-2021-42278 | CVSS: 7.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Modificación no autorizada de políticas de grupo
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y endurecer permisos de GPOs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-DelegationEveryone] Posibles delegaciones al grupo Everyone detectadas
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se han detectado posibles delegaciones de permisos al grupo Everyone | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 7.8 | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 7.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Acceso no controlado a objetos críticos del directorio
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Eliminar permisos del grupo Everyone y aplicar principio de menor privilegio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2020-1472
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-SilverTicket] Vulnerabilidades Silver Ticket (2 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: SPNs vulnerables a Silver Ticket: 11; Más del 50% de computadoras con SPNs vulnerables | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 8.3 | CVE: CVE-2021-42278, CVE-2021-42287 | CVSS: 8.3
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible creación de Silver Tickets y acceso no autorizado a servicios
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Rotar contraseñas de computadoras y monitorear SPNs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.3
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1558.002, T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-Krbtgt] Password de krbtgt potencialmente antigua
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> La contraseña de krbtgt no ha sido cambiada recientemente | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 7.2 | CVE: CVE-2021-42278, CVE-2020-1472 | CVSS: 7.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Golden ticket attacks posibles con contraseña comprometida
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Cambiar contraseña de krbtgt regularmente (2 veces)
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2020-1472
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-LDAPSigningDisabled] LDAP Signing posiblemente deshabilitado
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> La configuración de firma LDAP puede no estar habilitada | CVE: CVE-2021-42278 | CVSS: 6.8 | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Ataques man-in-the-middle contra comunicaciones LDAP
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Habilitar LDAP signing en todos los controladores de dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-SMBSigningDisabled] SMB Signing posiblemente deshabilitado
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> La configuración de firma SMB puede no estar habilitada | CVE: CVE-2021-42278 | CVSS: 6.5 | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> SMB relay attacks y manipulación de tráfico SMB
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Habilitar SMB signing requerido en políticas de dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-NTLMv1] Protocolos NTLM legacy posiblemente habilitados
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> NTLMv1 u otros protocolos inseguros pueden estar habilitados | CVE: CVE-2021-42278 | CVSS: 7.0 | CVE: CVE-2021-42278 | CVSS: 7.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Ataques de cracking contra protocolos débiles
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Deshabilitar NTLMv1 y forzar uso de NTLMv2 o Kerberos
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-LAPS] LAPS no implementado completamente (0/4)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Solo 0 de 4 computadoras tienen LAPS | CVE: CVE-2021-42278 | CVSS: 6.8 | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Contraseñas de administrador local estáticas y compartidas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Implementar LAPS en todas las computadoras del dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-MinPwdLen] Longitud mínima de contraseña insuficiente (4)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> La longitud mínima requerida es 4 caracteres | CVE: CVE-2021-42278 | CVSS: 6.0 | CVE: CVE-2021-42278 | CVSS: 6.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Facilita ataques de fuerza bruta contra contraseñas débiles
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar longitud mínima de contraseña ≥12 caracteres
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-LDAPInjection] Vulnerabilidades LDAP Injection (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Configuraciones LDAP inseguras: 2 | CVE: CVE-2021-42278 | CVSS: 8.5 | CVE: CVE-2021-42278 | CVSS: 8.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible inyección LDAP y bypass de autenticación
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar LDAP Channel Binding y signing requerido
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, AC-6
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.3
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [S-DC-NotUpdated] Controladores potencialmente desactualizados (1)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se detectaron 1 controladores de dominio | CVE: CVE-2021-42278 | CVSS: 7.0 | CVE: CVE-2021-42278 | CVSS: 7.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Vulnerabilidades críticas en infraestructura core
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Verificar y aplicar actualizaciones en controladores
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-Kerberoasting] Cuentas vulnerables a Kerberoasting (4)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 4 cuentas de usuario con SPN | CVE: CVE-2021-42278, CVE-2021-42287, CVE-2019-1040 | CVSS: 8.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Extracción de tickets TGS para cracking offline
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Usar contraseñas complejas (25+ chars) para cuentas de servicio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278, CVE-2021-42287, CVE-2019-1040
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 8.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1558.003, T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-OUDelegation] Delegaciones en Organizational Units (1)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 1 OUs con posibles delegaciones | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible escalación de privilegios via delegaciones en OUs
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y limitar delegaciones en OUs críticas
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [P-GPODelegation] Delegaciones en Group Policy Objects (2)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 2 GPOs con posibles delegaciones | CVE: CVE-2021-42278 | CVSS: 7.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Modificación no autorizada de políticas de grupo
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y endurecer permisos de GPOs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-LDAPSigningConfig] Configuración LDAP Signing en 1 DCs
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se detectaron 1 controladores de dominio | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible falta de firma LDAP en comunicaciones
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Verificar y habilitar LDAP signing en todos los DCs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-high fade-in">
+                    <div class="finding-title">
+                        [A-SMBSigningConfig] Configuración SMB Signing
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Verificación de configuración SMB signing requerida | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posibles SMB relay attacks si signing está deshabilitado
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Habilitar SMB signing requerido en políticas de dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-PwdNeverExpires] Múltiples cuentas con contraseñas que nunca expiran (4)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 4 cuentas con DONT_EXPIRE_PASSWORD | CVE: CVE-2021-42278 | CVSS: 6.2 | CVE: CVE-2021-42278 | CVSS: 6.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Contraseñas antiguas pueden ser comprometidas con el tiempo
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar expiración de contraseñas apropiada
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-JavaSchema] Extensiones de schema Java detectadas (javacodebase)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Atributo Java encontrado en schema: javacodebase | CVE: CVE-2021-42278 | CVSS: 6.0 | CVE: CVE-2021-42278 | CVSS: 6.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible vulnerabilidad Log4Shell via LDAP injection
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Verificar uso y configurar trustURLCodebase=false
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-DCLdapsProtocol] Posibles protocolos SSL/TLS débiles en LDAPS
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Los controladores pueden usar protocolos SSL/TLS obsoletos | CVE: CVE-2021-42278 | CVSS: 6.5 | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Vulnerabilidades en cifrado de comunicaciones LDAPS
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar TLS 1.2+ únicamente en controladores de dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-BitLocker] Configuración BitLocker insegura (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Computadoras sin BitLocker: 1 | CVE: CVE-2021-42278 | CVSS: 6.5 | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Datos sensibles expuestos en caso de robo o pérdida de dispositivos
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Implementar BitLocker en todas las computadoras y configurar recuperación segura
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-Defender] Windows Defender mal configurado (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Servidores sin Defender: 1 | CVE: CVE-2021-42278 | CVSS: 6.8 | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Protección antivirus insuficiente contra malware y amenazas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Actualizar Windows Defender y configurar políticas de seguridad
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-Registry] Configuración del registro insegura (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Configuraciones del registro inseguras: 2 | CVE: CVE-2021-42278 | CVSS: 6.5 | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Configuraciones del sistema que comprometen la seguridad
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y endurecer configuraciones del registro del sistema
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-SMBRelay] Vulnerabilidades SMB Relay (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Configuraciones SMB inseguras: 2 | CVE: CVE-2021-42278 | CVSS: 7.8 | CVE: CVE-2021-42278 | CVSS: 7.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible relay de autenticación SMB y escalación de privilegios
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar SMB signing requerido y deshabilitar SMB1
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [P-SecurityDescriptor] Security Descriptors detectados en 5 objetos críticos
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Objetos críticos con Security Descriptors: Admins. del dominio, Administradores de empresas, Administradores de esquema, DnsAdmins, Domain Controllers | CVE: CVE-2021-42278 | CVSS: 7.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posibles permisos peligrosos en objetos administrativos
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y endurecer permisos en objetos críticos del dominio
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-NTLMConfig] Configuración de protocolos NTLM
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Verificación de configuración NTLM requerida | CVE: CVE-2021-42278 | CVSS: 7.0
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posible uso de protocolos NTLM inseguros
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Configurar políticas para deshabilitar NTLMv1 y forzar NTLMv2
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.0
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-GPOAnalysis] Análisis de GPOs requerido (2)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 2 GPOs que requieren revisión | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posibles configuraciones inseguras en políticas de grupo
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar configuraciones de seguridad en todos los GPOs
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [A-ServiceAccounts] Cuentas de servicio detectadas (1)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Se encontraron 1 cuentas de servicio | CVE: CVE-2021-42278 | CVSS: 7.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Posibles cuentas de servicio con privilegios excesivos
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar privilegios de cuentas de servicio y usar gMSA
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 7.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002, T1555
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3, SC-7
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2, 6.8
+                    </div>
+                </div>
+            
+                <div class="finding finding-medium fade-in">
+                    <div class="finding-title">
+                        [UNIVERSAL-DeepScan] Escaneo profundo: 9 usuarios con configuraciones anómalas
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> De 108 usuarios analizados, 9 tienen flags peligrosos | CVE: CVE-2021-42278 | CVSS: 6.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Múltiples vectores de ataque identificados automáticamente
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar configuraciones userAccountControl de usuarios afectados
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-low fade-in">
+                    <div class="finding-title">
+                        [A-CredentialGuard] Credential Guard mal configurado (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Sistemas sin Credential Guard: 1 | CVE: CVE-2021-42278 | CVSS: 6.8 | CVE: CVE-2021-42278 | CVSS: 6.8
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Protección insuficiente contra extracción de credenciales
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Habilitar Windows Credential Guard en todos los sistemas compatibles
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.8
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-low fade-in">
+                    <div class="finding-title">
+                        [S-OldUsers] Usuarios inactivos antiguos (1 problemas)
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Problemas detectados: Gran número de usuarios (108) - posible problema de gestión | CVE: CVE-2021-42278 | CVSS: 6.2 | CVE: CVE-2021-42278 | CVSS: 6.2
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Superficie de ataque ampliada y gestión ineficiente de cuentas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Limpiar usuarios inactivos y implementar políticas de rotación
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 6.2
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+                <div class="finding finding-low fade-in">
+                    <div class="finding-title">
+                        [A-GPOStale] GPOs potencialmente obsoletos
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-info-circle"></i> Descripción:</strong> Verificación de GPOs antiguos o no actualizados | CVE: CVE-2021-42278 | CVSS: 5.5
+                    </div>
+                    <div class="finding-description">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Impacto:</strong> Configuraciones de seguridad desactualizadas
+                    </div>
+                    <div class="finding-remediation">
+                        <strong><i class="fas fa-tools"></i> Remediación:</strong> Revisar y actualizar GPOs obsoletos
+                    </div>
+                    <div class="finding-technical">
+                        <strong><i class="fas fa-bug"></i> CVE:</strong> CVE-2021-42278
+                        <br><strong><i class="fas fa-chart-line"></i> CVSS:</strong> 5.5
+                        <br><strong><i class="fas fa-shield-alt"></i> MITRE ATT&CK:</strong> T1078.002
+                        <br><strong><i class="fas fa-list-check"></i> NIST Controls:</strong> AC-2, AC-3
+                        <br><strong><i class="fas fa-cogs"></i> CIS Controls:</strong> 6.1, 6.2
+                    </div>
+                </div>
+            
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Generado por AD-Analyzer Pro v1.0</strong> - Análisis de Seguridad Active Directory</p>
+            <p>Proyecto Final Tokio School - Ciberseguridad | Ilana Aminoff Ali</p>
+            <p>Herramienta de Auditoría Profesional para Active Directory</p>
+        </div>
+    </div>
+</body>
+</html>

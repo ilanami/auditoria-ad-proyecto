@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoAD Auditor - Reporte de Seguridad Criptográfica v1.0</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6; color: #ffffff; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #3b82f6 50%, #1d4ed8 75%, #1e40af 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1400px; margin: 0 auto; padding: 20px; 
+            background: linear-gradient(145deg, rgba(30, 60, 114, 0.95), rgba(42, 82, 152, 0.9));
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 20px 40px rgba(30, 60, 114, 0.3);
+            margin-bottom: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 40px; border-radius: 15px;
+            margin-bottom: 30px; box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
+            text-align: center;
+        }
+        .header h1 { 
+            font-size: 3rem; margin-bottom: 15px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+            font-size: 1.3rem; opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        .critical-banner {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white; padding: 25px;
+            border-radius: 15px; margin-bottom: 30px;
+            text-align: center; font-weight: bold; font-size: 1.3rem;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr;
+            gap: 20px; background: white; padding: 30px;
+            border-radius: 15px; margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .info-card {
+            display: flex; align-items: center; padding: 20px; 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+            border-radius: 12px; border-left: 5px solid #1e3c72;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: #2c3e50;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .info-icon {
+            font-size: 2rem; color: #1e3c72; margin-right: 15px;
+        }
+        .info-content h4 { 
+            color: #1e3c72; margin-bottom: 8px; font-size: 1.1rem;
+        }
+        .info-content p { 
+            margin: 5px 0; color: #6c757d; font-size: 0.9rem;
+        }
+        .severity-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px; margin: 30px 0;
+        }
+        .severity-card {
+            background: white; padding: 25px; border-radius: 15px;
+            text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .severity-card:hover {
+            transform: translateY(-5px);
+        }
+        .severity-card h3 { 
+            font-size: 2.5rem; margin-bottom: 10px; font-weight: bold;
+        }
+        .severity-critical { 
+            border-top: 5px solid #dc3545; 
+            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+        }
+        .severity-high { 
+            border-top: 5px solid #fd7e14; 
+            background: linear-gradient(135deg, #fff8f0, #ffe6d1);
+        }
+        .severity-medium { 
+            border-top: 5px solid #ffc107; 
+            background: linear-gradient(135deg, #fffdf0, #fff8e1);
+        }
+        .severity-low { 
+            border-top: 5px solid #198754; 
+            background: linear-gradient(135deg, #f0fff4, #e6f7e6);
+        }
+        .risk-level {
+            display: inline-block; padding: 12px 24px; border-radius: 25px;
+            font-weight: bold; text-transform: uppercase; font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .risk-critico { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
+        .risk-alto { background: linear-gradient(135deg, #fd7e14, #e55a00); color: white; }
+        .risk-medio { background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; }
+        .risk-bajo { background: linear-gradient(135deg, #198754, #146c43); color: white; }
+        .findings-section {
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; 
+            margin-bottom: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            color: #2c3e50;
+        }
+        .finding-item {
+            background: #f8f9fa; padding: 25px; margin-bottom: 25px;
+            border-radius: 12px; border-left: 5px solid #6c757d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .finding-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .finding-critico { 
+            border-left-color: #dc3545; 
+            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+        }
+        .finding-alto { 
+            border-left-color: #fd7e14; 
+            background: linear-gradient(135deg, #fff8f0, #ffe6d1);
+        }
+        .finding-medio { 
+            border-left-color: #ffc107; 
+            background: linear-gradient(135deg, #fffdf0, #fff8e1);
+        }
+        .finding-bajo { 
+            border-left-color: #198754; 
+            background: linear-gradient(135deg, #f0fff4, #e6f7e6);
+        }
+        .finding-title {
+            font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; 
+            color: #1e3c72;
+        }
+        .footer {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white; text-align: center;
+            padding: 30px; border-radius: 15px; margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
+        }
+        .footer h3 {
+            margin-bottom: 15px; font-size: 1.5rem;
+        }
+        .footer p {
+            margin: 8px 0; opacity: 0.9;
+        }
+        .filter-buttons {
+            margin: 20px 0; text-align: center;
+        }
+        .filter-btn {
+            background: #1e3c72; color: white; border: none;
+            padding: 10px 20px; margin: 5px; border-radius: 25px;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #2a5298; transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .severity-stats { grid-template-columns: repeat(2, 1fr); }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="critical-banner">
+            <i class="fas fa-exclamation-triangle"></i> ALERTA CRÍTICA: 4 VULNERABILIDADES CRÍTICAS DETECTADAS <i class="fas fa-exclamation-triangle"></i><br>
+            REQUIERE ACCIÓN INMEDIATA - RIESGO DE COMPROMISO COMPLETO
+        </div>
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> CryptoAD Auditor v1.0</h1>
+            <div class="subtitle">Evaluación Integral de Seguridad Criptográfica Active Directory</div>
+            <div style="margin-top: 20px; font-size: 1.1rem;">
+                <i class="fas fa-calendar-alt"></i> <strong>Fecha de Auditoría:</strong> 13 de octubre de 2025 a las 18:16 UTC
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-globe"></i></div>
+                <div class="info-content">
+                    <h4>Dominio Objetivo</h4>
+                    <p><strong>Nombre:</strong> domain.local</p>
+                    <p><strong>IP:</strong> 192.168.37.10</p>
+            </div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-server"></i></div>
+                <div class="info-content">
+                    <h4>Información del Sistema</h4>
+                    <p><strong>Functional Level:</strong> Windows Server 2016</p>
+                    <p><strong>Total Hallazgos:</strong> 30</p>
+            </div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="info-content">
+                    <h4>Nivel de Riesgo</h4>
+                    <p><span class="risk-level risk-critico">CRÍTICO</span></p>
+                    <p><strong>Evaluación:</strong> Auditoría Integral</p>
+            </div>
+            </div>
+            
+                <div class="info-card">
+                    <div class="info-icon"><i class="fas fa-server"></i></div>
+                    <div class="info-content">
+                        <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">WIN-B820FDLIP42.domain.local</h4>
+                        <p><strong>OS:</strong> Windows Server 2019 Standard Evaluation</p>
+                        <p><strong>Versión:</strong> 10.0 (17763)</p>
+                        <p><strong>Tipo:</strong> Windows Server 2019</p>
+                    </div>
+                </div>
+        </div>
+
+        <div class="findings-section">
+            <h2><i class="fas fa-chart-bar"></i> Resumen Ejecutivo</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 25px;">
+                Esta evaluación integral analizó exhaustivamente la seguridad criptográfica del entorno Active Directory 
+                con categorización automática de vulnerabilidades y detección de configuraciones específicas de Windows Server.
+            </p>
+
+            <div class="severity-stats">
+                <div class="severity-card severity-critical">
+                    <h3>4</h3>
+                    <div><i class="fas fa-fire"></i> Críticos</div>
+                </div>
+                <div class="severity-card severity-high">
+                    <h3>12</h3>
+                    <div><i class="fas fa-exclamation-triangle"></i> Altos</div>
+                </div>
+                <div class="severity-card severity-medium">
+                    <h3>14</h3>
+                    <div><i class="fas fa-exclamation-circle"></i> Medios</div>
+                </div>
+                <div class="severity-card severity-low">
+                    <h3>0</h3>
+                    <div><i class="fas fa-info-circle"></i> Bajos</div>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; margin-top: 25px;">
+                <h3><i class="fas fa-clock"></i> Factores Clave de Riesgo:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-hourglass-half"></i> Tiempo Estimado de Compromiso:</strong><br>
+                        <span style="color: #dc3545; font-weight: bold;">Minutos a Horas (múltiples rutas críticas)</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-building"></i> Impacto de Negocio:</strong><br>
+                        <span style="color: #dc3545; font-weight: bold;">SEVERO - Múltiples rutas críticas amenazan continuidad del negocio</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-gavel"></i> Impacto de Cumplimiento:</strong><br>
+                        <span style="color: #dc3545; font-weight: bold;">ALTO - Violaciones significativas afectando marcos regulatorios principales</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="findings-section">
+            <h2><i class="fas fa-search"></i> Hallazgos de Seguridad Detallados</h2>
+            <p style="margin-bottom: 25px;">
+                Análisis completo de vulnerabilidades identificadas con categorización automática y filtros interactivos:
+            </p>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterFindings('all')">Todos (30)</button>
+                <button class="filter-btn" onclick="filterFindings('CRÍTICO')">Críticos (4)</button>
+                <button class="filter-btn" onclick="filterFindings('ALTO')">Altos (12)</button>
+                <button class="filter-btn" onclick="filterFindings('MEDIO')">Medios (14)</button>
+                <button class="filter-btn" onclick="filterFindings('BAJO')">Bajos (0)</button>
+            </div>
+            <div class="finding-item finding-crítico" data-severity="CRÍTICO">
+                <div class="finding-title">
+                    <i class="fas fa-fire"></i> Vulnerabilidad Kerberoasting: WIN-B820FDLIP42$
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0001 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 10.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.207343
+                    </div>
+                    <div>
+                        <span class="risk-level risk-critico" style="font-size: 0.8rem;">
+                            CRÍTICO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta de servicio vulnerable a ataque Kerberoasting - Vulnerabilidad de severidad basada en rc4-hmac y aes habilitados - vulnerable a ataques de degradación afectando cuenta de computadora con spn</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Configurar cifrado solo AES (AES-128 y AES-256 únicamente) | Revisar necesidad de privilegios administrativos | Considerar migración a Group Managed Service Account (gMSA) | Implementar contraseña robusta (mínimo 25 caracteres aleatorios) | Monitorear solicitudes TGS Kerberos (Event ID 4769) | Aplicar principio de menor privilegio</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #dc3545; font-weight: bold;">Vulnerabilidad crítica detectada - CVSS: 10.0</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.003</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-crítico" data-severity="CRÍTICO">
+                <div class="finding-title">
+                    <i class="fas fa-fire"></i> Vulnerabilidad Kerberoasting: mssql_svc$
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0003 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 10.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.211242
+                    </div>
+                    <div>
+                        <span class="risk-level risk-critico" style="font-size: 0.8rem;">
+                            CRÍTICO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta de servicio vulnerable a ataque Kerberoasting - Vulnerabilidad de severidad basada en rc4-hmac y aes habilitados - vulnerable a ataques de degradación afectando cuenta de computadora con spn</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Configurar cifrado solo AES (AES-128 y AES-256 únicamente) | Revisar necesidad de privilegios administrativos | Considerar migración a Group Managed Service Account (gMSA) | Implementar contraseña robusta (mínimo 25 caracteres aleatorios) | Monitorear solicitudes TGS Kerberos (Event ID 4769) | Aplicar principio de menor privilegio</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #dc3545; font-weight: bold;">Vulnerabilidad crítica detectada - CVSS: 10.0</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.003</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-crítico" data-severity="CRÍTICO">
+                <div class="finding-title">
+                    <i class="fas fa-fire"></i> Vulnerabilidad Kerberoasting: http_svc$
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0004 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 10.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.214515
+                    </div>
+                    <div>
+                        <span class="risk-level risk-critico" style="font-size: 0.8rem;">
+                            CRÍTICO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta de servicio vulnerable a ataque Kerberoasting - Vulnerabilidad de severidad basada en rc4-hmac y aes habilitados - vulnerable a ataques de degradación afectando cuenta de computadora con spn</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Configurar cifrado solo AES (AES-128 y AES-256 únicamente) | Revisar necesidad de privilegios administrativos | Considerar migración a Group Managed Service Account (gMSA) | Implementar contraseña robusta (mínimo 25 caracteres aleatorios) | Monitorear solicitudes TGS Kerberos (Event ID 4769) | Aplicar principio de menor privilegio</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #dc3545; font-weight: bold;">Vulnerabilidad crítica detectada - CVSS: 10.0</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.003</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-crítico" data-severity="CRÍTICO">
+                <div class="finding-title">
+                    <i class="fas fa-fire"></i> SMB Signing deshabilitado
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0010 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 9.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.225939
+                    </div>
+                    <div>
+                        <span class="risk-level risk-critico" style="font-size: 0.8rem;">
+                            CRÍTICO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">SMB Signing no está habilitado, permitiendo ataques de relay</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar SMB Signing en todas las estaciones de trabajo y servidores</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #dc3545; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad Kerberoasting: exchange_svc$
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0002 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 8.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.209520
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta de servicio vulnerable a ataque Kerberoasting - Vulnerabilidad de severidad basada en rc4-hmac y aes habilitados - vulnerable a ataques de degradación afectando cuenta de computadora con spn</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Configurar cifrado solo AES (AES-128 y AES-256 únicamente) | Revisar necesidad de privilegios administrativos | Considerar migración a Group Managed Service Account (gMSA) | Implementar contraseña robusta (mínimo 25 caracteres aleatorios) | Monitorear solicitudes TGS Kerberos (Event ID 4769) | Aplicar principio de menor privilegio</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Vulnerabilidad de alto riesgo - CVSS: 8.5</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.003</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad AS-REP Roasting: hatty.marie-ann
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0005 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.220690
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta vulnerable a ataque AS-REP Roasting - Vulnerabilidad de alto riesgo: Usuario estándar sin pre-autenticación Kerberos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">INMEDIATO: Habilitar 'Require Kerberos preauthentication' en propiedades de cuenta | Implementar política de contraseñas robustas | Monitorear eventos de autenticación</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Usuario estándar sin pre-autenticación Kerberos</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.004</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad AS-REP Roasting: jania.drona
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0006 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.220732
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta vulnerable a ataque AS-REP Roasting - Vulnerabilidad de alto riesgo: Usuario estándar sin pre-autenticación Kerberos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">INMEDIATO: Habilitar 'Require Kerberos preauthentication' en propiedades de cuenta | Implementar política de contraseñas robustas | Monitorear eventos de autenticación</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Usuario estándar sin pre-autenticación Kerberos</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.004</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad AS-REP Roasting: barbra.launce
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0007 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.220764
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta vulnerable a ataque AS-REP Roasting - Vulnerabilidad de alto riesgo: Usuario estándar sin pre-autenticación Kerberos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">INMEDIATO: Habilitar 'Require Kerberos preauthentication' en propiedades de cuenta | Implementar política de contraseñas robustas | Monitorear eventos de autenticación</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Usuario estándar sin pre-autenticación Kerberos</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.004</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad AS-REP Roasting: jerrilyn.marylynne
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0008 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.220795
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta vulnerable a ataque AS-REP Roasting - Vulnerabilidad de alto riesgo: Usuario estándar sin pre-autenticación Kerberos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">INMEDIATO: Habilitar 'Require Kerberos preauthentication' en propiedades de cuenta | Implementar política de contraseñas robustas | Monitorear eventos de autenticación</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Usuario estándar sin pre-autenticación Kerberos</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.004</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidad AS-REP Roasting: alexia.lynea
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0009 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.220814
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Cuenta vulnerable a ataque AS-REP Roasting - Vulnerabilidad de alto riesgo: Usuario estándar sin pre-autenticación Kerberos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">INMEDIATO: Habilitar 'Require Kerberos preauthentication' en propiedades de cuenta | Implementar política de contraseñas robustas | Monitorear eventos de autenticación</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Usuario estándar sin pre-autenticación Kerberos</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.004</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades Pass the Hash/Ticket
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0012 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.308802
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Kerberos no configurado correctamente</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar Kerberos, deshabilitar NTLM, implementar LSA Protection</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1550.002, T1550.003</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades DCSync
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0013 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.313445
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Se encontraron 1 cuentas con privilegios de replicación</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Revisar y limitar privilegios de replicación, implementar RODC</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.006</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades DCShadow
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0014 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.318448
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Cuentas vulnerables a DCShadow: 1</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Revisar y limitar privilegios de replicación, implementar monitoreo de cambios</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1207</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2021-42287, CVE-2021-42278, CVE-2022-26923</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades LSA Protection
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0015 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.322069
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: LSA Protection no configurado</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar LSA Protection, configurar RunAsPPL</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades Credential Guard
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0016 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.5 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.324712
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Credential Guard no configurado</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar Credential Guard, configurar VBS</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-alto" data-severity="ALTO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-triangle"></i> Vulnerabilidades BitLocker detectadas
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0018 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 7.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.341129
+                    </div>
+                    <div>
+                        <span class="risk-level risk-alto" style="font-size: 0.8rem;">
+                            ALTO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: No se encontraron GPOs de BitLocker</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar BitLocker con configuraciones seguras, usar TPM 2.0</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #fd7e14; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1486</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades EFS detectadas
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0011 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 4.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.276793
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Usuarios con EFS habilitado: 110</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Revisar y fortalecer certificados EFS, implementar BitLocker como alternativa</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1486</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2021-36934, CVE-2021-36942, CVE-2021-36948</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades DPAPI detectadas
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0017 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 4.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.338504
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Usuarios con DPAPI: 110</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Fortalecer certificados DPAPI, implementar rotación de claves</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades VBS
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0019 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.342653
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones VBS no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar VBS, configurar HVCI y CFG</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1055</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado RPC
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0020 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.344136
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones RPC no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar cifrado RPC, configurar RPC over HTTPS</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1071.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado RDP
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0021 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.345680
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones RDP no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar cifrado RDP, configurar NLA</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1071.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2019-0708, CVE-2020-0609</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado SMB
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0022 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.350406
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones SMB no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Habilitar cifrado SMB, configurar SMB 3.0+</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1071.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Configuraciones DNS detectadas
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0023 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.352469
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones DNS encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Revisar y endurecer configuraciones DNS</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1071.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> GPOs criptográficos faltantes
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0024 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.356669
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: No se encontraron GPOs criptográficos</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar GPOs criptográficos centralizados</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1068</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado NTDS.dit
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0025 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.360347
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones NTDS no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar cifrado NTDS.dit, usar BitLocker</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado SYSVOL
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0026 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.363768
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones SYSVOL no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar cifrado SYSVOL, usar DFS-R</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades cifrado de copias de seguridad
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0027 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.365664
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones de backup no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar cifrado de copias de seguridad, usar BitLocker</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1003.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades autenticación con tarjetas inteligentes
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0028 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.368740
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones de tarjetas inteligentes no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar autenticación con tarjetas inteligentes, configurar PKI</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1558.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades Print Spooler
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0029 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.370506
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones Print Spooler no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Deshabilitar Print Spooler en DCs, implementar restricciones</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1055</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2021-1675, CVE-2021-34527, CVE-2021-36942</span>
+                    </div>
+                </div>
+            </div>
+            <div class="finding-item finding-medio" data-severity="MEDIO">
+                <div class="finding-title">
+                    <i class="fas fa-exclamation-circle"></i> Vulnerabilidades monitoreo criptográfico
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div>
+                        <strong><i class="fas fa-tag"></i> ID:</strong> HALL-0030 | 
+                        <strong><i class="fas fa-shield-alt"></i> CVSS:</strong> 5.0 |
+                        <strong><i class="fas fa-calendar"></i> Fecha:</strong> 2025-10-13T18:16:08.392570
+                    </div>
+                    <div>
+                        <span class="risk-level risk-medio" style="font-size: 0.8rem;">
+                            MEDIO
+                        </span>
+                    </div>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Problemas detectados: Configuraciones de monitoreo criptográfico no encontradas</p>
+                
+                <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-tools"></i> Remediación:</strong><br>
+                    <span style="color: #2c3e50;">Implementar monitoreo criptográfico, configurar alertas</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <strong><i class="fas fa-balance-scale"></i> Justificación de Severidad:</strong><br>
+                    <span style="color: #b8860b; font-weight: bold;">Categorización automática aplicada</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <strong><i class="fas fa-bug"></i> MITRE ATT&CK:</strong><br>
+                        <span style="color: #6c757d;">T1071.001</span>
+                    </div>
+                    <div>
+                        <strong><i class="fas fa-exclamation-triangle"></i> CVE:</strong><br>
+                        <span style="color: #6c757d;">CVE-2020-1472, CVE-2021-42287, CVE-2021-42278</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="findings-section">
+            <h2><i class="fas fa-lightbulb"></i> Recomendaciones Estratégicas</h2>
+            <p style="margin-bottom: 25px;">Recomendaciones priorizadas basadas en el análisis integral:</p>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 1:</strong> ACCIÓN INMEDIATA: Remediar todas las vulnerabilidades críticas en 24-48 horas
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 2:</strong> KERBEROS CRÍTICO: 3 cuentas SPN requieren actualización de cifrado inmediata
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 3:</strong> Implementar estándares criptográficos empresariales (AES-256 mínimo)
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 4:</strong> Desplegar gestión de acceso privilegiado (PAM)
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 5:</strong> Establecer monitoreo continuo de eventos Kerberos
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 6:</strong> Realizar auditorías regulares de cuentas de servicio
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 7:</strong> Implementar Group Managed Service Accounts (gMSA)
+            </div>
+            <div style="background: linear-gradient(135deg, #e8f4fd, #d1ecf1); padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 5px solid #0d6efd; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <strong><i class="fas fa-arrow-right"></i> Recomendación 8:</strong> Capacitar al personal en mejores prácticas de seguridad
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3><i class="fas fa-shield-alt"></i> CryptoAD Auditor v1.0</h3>
+            <p><strong>Herramienta diseñada por: Ilana Aminoff</strong></p>
+            <p><strong>Proyecto Final de Ciberseguridad - Tokio School</strong></p>
+            <p><i class="fas fa-calendar"></i> Generado: 13 de octubre de 2025 a las 18:16 UTC</p>
+            <p><i class="fas fa-lock"></i> Reporte confidencial - Manejar según políticas organizacionales</p>
+        </div>
+    </div>
+
+    <script>
+        function filterFindings(severity) {
+            const findings = document.querySelectorAll('.finding-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Actualizar botones activos
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filtrar hallazgos
+            findings.forEach(finding => {
+                if (severity === 'all' || finding.dataset.severity === severity) {
+                    finding.style.display = 'block';
+                    finding.style.animation = 'fadeIn 0.5s ease-in';
+                } else {
+                    finding.style.display = 'none';
+                }
+            });
+        }
+        
+        // Animaciones CSS adicionales
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .finding-item {
+                animation: fadeIn 0.5s ease-in;
+            }
+            
+            .severity-card:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            }
+            
+            .info-card:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Efecto de carga inicial
+        document.addEventListener('DOMContentLoaded', function() {
+            const findings = document.querySelectorAll('.finding-item');
+            findings.forEach((finding, index) => {
+                finding.style.opacity = '0';
+                finding.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    finding.style.transition = 'all 0.6s ease-out';
+                    finding.style.opacity = '1';
+                    finding.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
