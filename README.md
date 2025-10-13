@@ -1,17 +1,17 @@
 # 🛡️ Proyecto Final - Auditoría Integral de Seguridad Active Directory
 
-## 📋 Descripción del Proyecto
+## 📜 Descripción del Proyecto
 
 Este proyecto presenta un sistema integral de auditoría de seguridad para entornos Active Directory, desarrollado como proyecto final del curso de Ciberseguridad en Tokio School.
 
-## 🎯 Objetivos
+##  ✅ Objetivos
 
 - Desarrollar un sistema automatizado de auditoría de seguridad para Active Directory
 - Implementar herramientas de análisis de vulnerabilidades
 - Crear un motor de análisis inteligente para correlacionar hallazgos
 - Generar reportes profesionales y dinámicos
 
-## 🛠️ Herramientas Desarrolladas
+##  ▶️ Herramientas de Reconocimiento y Enumeración Utiizadas
 
 ### 1. **Nmap Scanner**
 - Escaneo de puertos y servicios
@@ -33,6 +33,8 @@ Este proyecto presenta un sistema integral de auditoría de seguridad para entor
 - Identificación de vulnerabilidades
 - Evaluación de políticas de seguridad
 
+##  Herramientas Desarrolladas
+
 ### 5. **AD-Analyzer Pro**
 - Análisis avanzado de Active Directory
 - Detección de cuentas privilegiadas
@@ -43,7 +45,7 @@ Este proyecto presenta un sistema integral de auditoría de seguridad para entor
 - Análisis de certificados y claves
 - Evaluación de políticas de cifrado
 
-## 🔧 Tecnologías Utilizadas
+##  ▶️ Tecnologías Utilizadas
 
 - **Python**: Desarrollo de herramientas de auditoría
 - **JavaScript**: Motor de análisis inteligente
@@ -52,7 +54,7 @@ Este proyecto presenta un sistema integral de auditoría de seguridad para entor
 - **Bootstrap**: Interfaz de usuario
 - **Font Awesome**: Iconografía
 
-## 📊 Metodologías Aplicadas
+## ▶️  Metodologías Aplicadas
 
 - **PTES**: Penetration Testing Execution Standard
 - **NIST CSF**: Cybersecurity Framework
@@ -77,13 +79,6 @@ proyecto/
 └── pagina_web/           # Sitio web del proyecto
 ```
 
-## 🚀 Cómo Usar
-
-1. **Configurar el entorno**: Instalar dependencias y configurar credenciales
-2. **Ejecutar auditoría**: Lanzar el flujo de trabajo N8N
-3. **Analizar resultados**: Revisar el reporte generado
-4. **Implementar remediaciones**: Aplicar las recomendaciones de seguridad
-
 ## 📈 Resultados
 
 El sistema ha demostrado su efectividad en la detección de:
@@ -92,19 +87,6 @@ El sistema ha demostrado su efectividad en la detección de:
 - Cuentas con privilegios excesivos
 - Anomalías en el directorio activo
 
-## 🔒 Consideraciones de Seguridad
-
-- Todas las credenciales se manejan de forma segura
-- Los datos sensibles se cifran en tránsito
-- Se implementan controles de acceso apropiados
-- Se mantiene un registro de auditoría completo
-
-## 📞 Contacto
-
-Para más información sobre este proyecto, contacta con:
-- **Email**: [tu-email@ejemplo.com]
-- **LinkedIn**: [tu-perfil-linkedin]
-- **GitHub**: [tu-usuario-github]
 
 ---
 
