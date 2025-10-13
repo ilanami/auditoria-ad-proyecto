@@ -13,37 +13,42 @@ Este proyecto presenta un sistema integral de auditoría de seguridad para entor
 
 ##  ▶️ Herramientas de Reconocimiento y Enumeración Utiizadas
 
-### 1. **Nmap Scanner**
+### 1. ***Nmap Scanner***
 - Escaneo de puertos y servicios
 - Detección de vulnerabilidades de red
 - Análisis de superficie de ataque
 
-### 2. **Enum4Linux**
+### 2. ***Enum4Linux***
 - Enumeración de usuarios y grupos
 - Identificación de recursos compartidos
 - Análisis de permisos SMB
 
-### 3. **SMB Analysis**
+### 3. ***SMB Analysis***
 - Análisis de recursos compartidos
 - Detección de acceso anónimo
 - Evaluación de permisos de seguridad
 
-### 4. **LDAP Analysis**
+### 4. ***LDAP Analysis***
 - Análisis de configuración LDAP
 - Identificación de vulnerabilidades
 - Evaluación de políticas de seguridad
 
-##  Herramientas Desarrolladas
+##  📚 Herramientas Desarrolladas
 
-### 5. **AD-Analyzer Pro**
+### 1. ***AD-Analyzer Pro***
 - Análisis avanzado de Active Directory
 - Detección de cuentas privilegiadas
 - Identificación de anomalías de seguridad
 
-### 6. **CryptoAD-Auditor**
+### 2. ***CryptoAD-Auditor***
 - Auditoría de configuraciones criptográficas
 - Análisis de certificados y claves
 - Evaluación de políticas de cifrado
+
+### 3. ***Orquestador Active Directory***
+- Orquestador de herramientas especializadas y personalizadas.
+- Automatizacion en Workflow de procesos de auditoria.
+- Generacion de reportes consolidados de todas las herramientas.
 
 ##  ▶️ Tecnologías Utilizadas
 
@@ -90,4 +95,4 @@ El sistema ha demostrado su efectividad en la detección de:
 
 ---
 
-*Desarrollado con ❤️ para la finalizacion del Curso de Ciberguridad - Tokio School*
+***Desarrollado con ❤️ para la finalizacion del Curso de Ciberguridad - Tokio School***
