@@ -76,7 +76,7 @@ proyecto/
 ├── workflow/              # Flujos de trabajo N8N
 ├── reportes/              # Reportes generados
 ├── docs/                  # Documentación técnica
-└── pagina_web/           # Sitio web del proyecto
+└── pagina_web/            # Sitio web del proyecto
 ```
 
 ## 📈 Resultados
